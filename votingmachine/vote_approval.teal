@@ -1,0 +1,256 @@
+#pragma version 5
+txn ApplicationID
+int 0
+==
+bnz main_l22
+txn OnCompletion
+int DeleteApplication
+==
+bnz main_l21
+txn OnCompletion
+int UpdateApplication
+==
+bnz main_l20
+txn OnCompletion
+int CloseOut
+==
+bnz main_l17
+txn OnCompletion
+int OptIn
+==
+bnz main_l14
+txna ApplicationArgs 0
+byte "vote"
+==
+bnz main_l11
+txna ApplicationArgs 0
+byte "update_user_status"
+==
+bnz main_l8
+err
+main_l8:
+int 0
+global CurrentApplicationID
+byte "can_vote"
+app_local_get_ex
+store 2
+store 1
+global Round
+byte "ElectionEnd"
+app_global_get
+<=
+txn Sender
+global CreatorAddress
+==
+&&
+txna ApplicationArgs 1
+byte "can_vote"
+app_local_get
+byte "maybe"
+==
+&&
+bnz main_l10
+main_l9:
+int 1
+return
+main_l10:
+txna ApplicationArgs 1
+byte "can_vote"
+txna ApplicationArgs 2
+app_local_put
+b main_l9
+main_l11:
+global Round
+byte "ElectionEnd"
+app_global_get
+<=
+assert
+int 0
+global CurrentApplicationID
+byte "can_vote"
+app_local_get_ex
+store 2
+store 1
+load 2
+assert
+load 1
+byte "yes"
+==
+assert
+int 0
+global CurrentApplicationID
+byte "voted"
+app_local_get_ex
+store 4
+store 3
+load 4
+bnz main_l13
+txna ApplicationArgs 1
+btoi
+byte "NumVoteOptions"
+app_global_get
+<
+assert
+byte "VotesFor"
+txna ApplicationArgs 1
+btoi
+callsub itoa_1
+concat
+byte "VotesFor"
+txna ApplicationArgs 1
+btoi
+callsub itoa_1
+concat
+app_global_get
+int 1
++
+app_global_put
+int 0
+byte "voted"
+txna ApplicationArgs 1
+btoi
+app_local_put
+int 1
+return
+main_l13:
+int 0
+return
+main_l14:
+global Round
+byte "ElectionEnd"
+app_global_get
+<=
+bnz main_l16
+main_l15:
+int 1
+return
+main_l16:
+int 0
+byte "can_vote"
+byte "maybe"
+app_local_put
+b main_l15
+main_l17:
+int 0
+global CurrentApplicationID
+byte "voted"
+app_local_get_ex
+store 4
+store 3
+global Round
+byte "ElectionEnd"
+app_global_get
+<=
+load 4
+&&
+bnz main_l19
+main_l18:
+int 1
+return
+main_l19:
+byte "VotesFor"
+load 3
+callsub itoa_1
+concat
+byte "VotesFor"
+load 3
+callsub itoa_1
+concat
+app_global_get
+int 1
+-
+app_global_put
+b main_l18
+main_l20:
+txn Sender
+global CreatorAddress
+==
+return
+main_l21:
+txn Sender
+global CreatorAddress
+==
+return
+main_l22:
+txn NumAppArgs
+int 3
+==
+assert
+byte "ElectionEnd"
+txna ApplicationArgs 0
+btoi
+app_global_put
+byte "VoteOptions"
+txna ApplicationArgs 1
+btoi
+app_global_put
+byte "NumVoteOptions"
+txna ApplicationArgs 2
+app_global_put
+int 0
+store 0
+main_l23:
+load 0
+txna ApplicationArgs 1
+btoi
+<
+bnz main_l25
+int 1
+return
+main_l25:
+byte "VotesFor"
+load 0
+callsub itoa_1
+concat
+int 0
+app_global_put
+load 0
+int 1
++
+store 0
+b main_l23
+
+// int_to_ascii
+inttoascii_0:
+store 6
+byte "0123456789"
+load 6
+int 1
+extract3
+retsub
+
+// itoa
+itoa_1:
+store 5
+load 5
+int 0
+==
+bnz itoa_1_l5
+load 5
+int 10
+/
+int 0
+>
+bnz itoa_1_l4
+byte ""
+itoa_1_l3:
+load 5
+int 10
+%
+callsub inttoascii_0
+concat
+b itoa_1_l6
+itoa_1_l4:
+load 5
+int 10
+/
+load 5
+swap
+callsub itoa_1
+swap
+store 5
+b itoa_1_l3
+itoa_1_l5:
+byte "0"
+itoa_1_l6:
+retsub
