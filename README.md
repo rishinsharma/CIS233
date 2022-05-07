@@ -7,12 +7,13 @@ The smart contract will handle the logic and data for the election.
 
 The webapp frontend will allow users to easily interact with the smart contract from their browser.
 
+
 Practical-HW3
 Aight, let's make some NFTs
 
 This homework has 4 components:
 
-Choose your art piece and store it on IPFS
-Make your art piece an NFT Asset by putting in on the Algorand blockchain
-Create a local web server that queries the blockchain for your NFT and displays the image
-Airdrop your NFT to our TA account
+1. Choose your art piece and store it on IPFS
+2. Make your art piece an NFT Asset by putting in on the Algorand blockchain
+3. Create a local web server that queries the blockchain for your NFT and displays the image
+4. Airdrop your NFT to our TA account
